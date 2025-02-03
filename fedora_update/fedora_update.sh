@@ -28,11 +28,11 @@ printf "\n\nUpdating packages...\n\n"
 
 if [ -z "$YES_FLAG" ]; then
     printf "Using default...\n\n"
-    dnf update
+    dnf upgrade
     flatpak update
 else
     printf "Using YES_FLAG...\n\n"
-    dnf update ${YES_FLAG}
+    dnf upgrade ${YES_FLAG}
     flatpak update ${YES_FLAG}
 fi
 
@@ -41,15 +41,15 @@ if [ -n "$CLEAN_FLAG"  ] && [ "$CLEAN_FLAG" == "-clean" ]; then
     printf "Using CLEAN_FLAG...\n\n"
     dnf autoremove
     dnf clean all
-fi
 
-printf "\n\nRemoving Flatpak packages...\n\n"
-if [ -z "$YES_FLAG" ]; then
-    printf "Using default...\n\n"
-    flatpak uninstall --unused
-else
-    printf "Using YES_FLAG...\n\n"
-    flatpak uninstall ${YES_FLAG} --unused
+    printf "\n\nRemoving Flatpak packages...\n\n"
+    if [ -z "$YES_FLAG" ]; then
+        printf "Using default...\n\n"
+        flatpak uninstall --unused
+    else
+        printf "Using YES_FLAG...\n\n"
+        flatpak uninstall ${YES_FLAG} --unused
+    fi
 fi
 
 if [ -n "$GRUB_FLAG"  ] && [ "$GRUB_FLAG" == "-grub" ]; then

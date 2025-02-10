@@ -3,6 +3,7 @@
 unset YES_FLAG
 unset CLEAN_FLAG
 unset GRUB_FLAG
+unset FWUPD_FLAG
 
 for arg in "$@"; do
     case $arg in
@@ -18,8 +19,23 @@ for arg in "$@"; do
             printf "\n\nGRUB_FLAG set\n\n"
             GRUB_FLAG="-grub"
             ;;
+	-fwupd)
+            printf "\n\nFWUPD_FLAG set\n\n"
+            FWUPD_FLAG="-fwupd"
+            ;;
     esac
 done
+
+## Experimental FWUPD flag:
+if [ -n "$FWUPD_FLAG" ] && [ "$FWUPD_FLAG" == "-fwupd" ]; then
+    printf "Updating BIOS using fwupd...\n\n"
+    fwupdmgr get-devices
+    fwupdmgr refresh
+    fwupdmgr get-updates
+    fwupdmgr update
+    printf "Exiting script...\n\n"
+    exit 0
+fi
 
 printf "\n\nUpdating package list...\n\n"
 dnf check-update

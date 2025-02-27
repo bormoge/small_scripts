@@ -4,6 +4,7 @@ unset YES_FLAG
 unset CLEAN_FLAG
 unset GRUB_FLAG
 unset FWUPD_FLAG
+unset OFFLINE_FLAG
 
 for arg in "$@"; do
     case $arg in
@@ -23,6 +24,10 @@ for arg in "$@"; do
             printf "\n\nFWUPD_FLAG set\n\n"
             FWUPD_FLAG="-fwupd"
             ;;
+	-offline)
+            printf "\n\nOFFLINE_FLAG set\n\n"
+            OFFLINE_FLAG="-offline"
+            ;;
     esac
 done
 
@@ -37,6 +42,15 @@ if [ -n "$FWUPD_FLAG" ] && [ "$FWUPD_FLAG" == "-fwupd" ]; then
     exit 0
 fi
 
+## Offline Update
+if [ -n "$OFFLINE_FLAG" ] && [ "$OFFLINE_FLAG" == "-offline" ]; then
+    printf "Offline update using dnf-offline...\n\n"
+    dnf upgrade --offline
+    dnf offline reboot
+    ## dnf offline reboot --poweroff
+    exit 0
+fi
+
 printf "\n\nUpdating package list...\n\n"
 dnf check-update
 
@@ -46,10 +60,12 @@ if [ -z "$YES_FLAG" ]; then
     printf "Using default...\n\n"
     dnf upgrade
     flatpak update
+    ## flatpak update --user
 else
     printf "Using YES_FLAG...\n\n"
     dnf upgrade ${YES_FLAG}
     flatpak update ${YES_FLAG}
+    ## flatpak update ${YES_FLAG} --user
 fi
 
 if [ -n "$CLEAN_FLAG"  ] && [ "$CLEAN_FLAG" == "-clean" ]; then
@@ -62,9 +78,11 @@ if [ -n "$CLEAN_FLAG"  ] && [ "$CLEAN_FLAG" == "-clean" ]; then
     if [ -z "$YES_FLAG" ]; then
         printf "Using default...\n\n"
         flatpak uninstall --unused
+	## flatpak uninstall --user --unused
     else
         printf "Using YES_FLAG...\n\n"
         flatpak uninstall ${YES_FLAG} --unused
+	## flatpak uninstall ${YES_FLAG} --user --unused
     fi
 fi
 
@@ -73,6 +91,8 @@ if [ -n "$GRUB_FLAG"  ] && [ "$GRUB_FLAG" == "-grub" ]; then
     printf "Using GRUB_FLAG...\n\n"
     # grub2-mkconfig --version
     grub2-mkconfig -o /boot/grub2/grub.cfg
+    printf "Exiting script...\n\n"
+    exit 0
 fi
 
 printf "\n\nSystem update complete!\n\n"
